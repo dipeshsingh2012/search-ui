@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite --port 5179",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "storybook": "storybook dev -p 6008 --disable-telemetry",
+    "build-storybook": "storybook build --disable-telemetry"
   },
   "dependencies": {
     "clsx": "^2.1.1",
