@@ -4,14 +4,14 @@ import {
   Ruler,
   SlidersHorizontal,
   ArrowRight,
-  CheckCircle2,
-  AlertTriangle,
   ShoppingBag,
   Sparkles,
   X,
 } from 'lucide-react';
 import { searchProducts } from '../api';
 import { SearchProduct, SearchResponse } from '../types';
+import { PriceDisplay, EmptyState, FitmentBadge } from '@dipesh.singh/commerce-ui';
+import { ProtonSpinner } from '@dipesh.singh/proton/react';
 
 interface SearchFragmentProps {
   initialQuery?: string;
@@ -269,25 +269,15 @@ export const SearchFragment: React.FC<SearchFragmentProps> = ({
 
           {isLoading ? (
             <div className="min-h-[300px] flex items-center justify-center">
-              <div className="w-8 h-8 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+              <ProtonSpinner size="md" variant="amber" label="Searching appliances..." />
             </div>
           ) : data?.items.length === 0 ? (
-            <div className="bg-white rounded-3xl p-12 border border-slate-200 text-center space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
-                <AlertTriangle className="w-6 h-6" />
-              </div>
-              <h3 className="text-base font-extrabold text-slate-900">No appliances found</h3>
-              <p className="text-xs text-slate-500 max-w-md mx-auto">
-                No products in the catalog match your current search and height limits. Try widening your countertop clearance or clearing brand filters.
-              </p>
-              <button
-                type="button"
-                onClick={handleClearFilters}
-                className="mt-2 px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold"
-              >
-                Clear All Filters
-              </button>
-            </div>
+            <EmptyState
+              title="No appliances found"
+              description="No products in the catalog match your current search and height limits. Try widening your countertop clearance or clearing brand filters."
+              actionLabel="Clear All Filters"
+              onAction={handleClearFilters}
+            />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
               {data?.items.map((prod) => {
@@ -314,17 +304,12 @@ export const SearchFragment: React.FC<SearchFragmentProps> = ({
 
                       {/* Clearance Badge */}
                       <div className="absolute top-3 left-3">
-                        {fits ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/90 backdrop-blur-md text-white text-[10px] font-black shadow-xs">
-                            <CheckCircle2 className="w-3 h-3" />
-                            Fits Space ({prod.height_cm} cm)
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/90 backdrop-blur-md text-white text-[10px] font-black shadow-xs">
-                            <AlertTriangle className="w-3 h-3" />
-                            Requires {prod.height_cm} cm
-                          </span>
-                        )}
+                        <FitmentBadge
+                          size="sm"
+                          status={fits ? 'verified' : 'warning'}
+                          pulse={fits}
+                          label={fits ? `Fits Space (${prod.height_cm} cm)` : `Requires ${prod.height_cm} cm`}
+                        />
                       </div>
                     </div>
 
@@ -348,9 +333,7 @@ export const SearchFragment: React.FC<SearchFragmentProps> = ({
                       {/* Footer: Price & Actions */}
                       <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                         <div>
-                          <span className="text-base font-black text-slate-900">
-                            ${prod.price.toFixed(2)}
-                          </span>
+                          <PriceDisplay cents={Math.round(prod.price * 100)} size="md" />
                         </div>
 
                         <div className="flex items-center gap-2">

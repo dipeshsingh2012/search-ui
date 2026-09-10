@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, X, Ruler, ArrowRight, Sparkles, CheckCircle2, AlertTriangle } from 'lucide-react';
-import { ProtonThemeProvider, ProtonStatusBadge, ProtonButton } from '@dipesh.singh/proton/react';
+import {
+  ProtonThemeProvider,
+  ProtonStatusBadge,
+  ProtonButton,
+  ProtonSpinner,
+} from '@dipesh.singh/proton/react';
+import { PriceDisplay, EmptyState } from '@dipesh.singh/commerce-ui';
 import { fetchSuggestions, searchProducts } from '../api';
 import { SearchProduct, SuggestionResponse } from '../types';
 
@@ -189,19 +195,16 @@ export const SearchModal: React.FC<SearchModalProps> = ({
           {/* Results / Suggestions Container */}
           <div className="max-h-96 overflow-y-auto p-3 space-y-1 divide-y divide-slate-50">
             {isLoading && (
-              <div className="py-12 text-center text-xs text-slate-400">
-                <div className="w-6 h-6 border-2 border-amber-700 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-                Finding matching equipment...
+              <div className="py-12 flex flex-col items-center justify-center">
+                <ProtonSpinner size="sm" variant="amber" label="Finding matching equipment..." />
               </div>
             )}
 
             {!isLoading && results.length === 0 && query.trim().length > 0 && (
-              <div className="py-12 text-center space-y-2">
-                <p className="text-xs font-semibold text-slate-700">No appliances found matching "{query}"</p>
-                <p className="text-[11px] text-slate-400">
-                  Try widening your height clearance or checking your spelling.
-                </p>
-              </div>
+              <EmptyState
+                title={`No appliances found matching "${query}"`}
+                description="Try widening your height clearance or checking your spelling."
+              />
             )}
 
             {!isLoading &&
@@ -257,7 +260,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                     </div>
 
                     <div className="text-right">
-                      <span className="text-xs font-black text-slate-900">${product.price.toFixed(2)}</span>
+                      <PriceDisplay cents={Math.round(product.price * 100)} size="sm" />
                       <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-amber-700 group-hover:translate-x-0.5 transition-all ml-auto mt-1" />
                     </div>
                   </div>
