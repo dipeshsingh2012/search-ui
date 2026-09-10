@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, X, Ruler, ArrowRight, Sparkles, CheckCircle2, AlertTriangle } from 'lucide-react';
-import { ProtonThemeProvider, ProtonStatusBadge, ProtonButton } from '@dipeshsingh2012/proton/react';
+import { ProtonThemeProvider, ProtonStatusBadge, ProtonButton } from '@dipesh.singh/proton/react';
 import { fetchSuggestions, searchProducts } from '../api';
 import { SearchProduct, SuggestionResponse } from '../types';
 

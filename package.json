@@ -16,7 +16,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tailwind-merge": "^2.2.2",
-    "@dipeshsingh2012/proton": "^0.1.0"
+    "@dipesh.singh/proton": "^0.1.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",
