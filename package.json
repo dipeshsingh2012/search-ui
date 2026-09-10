@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --port 5179",
     "build": "tsc && vite build",
-    "preview": "vite preview",
+    "preview": "vite preview --port 5179",
     "storybook": "storybook dev -p 6008 --disable-telemetry",
     "build-storybook": "storybook build --disable-telemetry"
   },
