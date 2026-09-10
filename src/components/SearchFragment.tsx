@@ -385,3 +385,4 @@ export const SearchFragment: React.FC<SearchFragmentProps> = ({
     </div>
   );
 };
+export default SearchFragment;

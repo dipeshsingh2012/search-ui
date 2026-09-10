@@ -29,3 +29,4 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     </button>
   );
 };
+export default SearchBar;
