@@ -1,0 +1,17 @@
+name: Deploy Search MFE to Google Cloud Storage
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    uses: dipeshsingh2012/shared-workflows/.github/workflows/deploy-mfe-gcs.yml@main
+    with:
+      dest_dir: 'mfes/search-ui'
