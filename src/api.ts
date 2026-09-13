@@ -1,6 +1,6 @@
 import { SearchProduct, SearchResponse, SuggestionResponse } from './types';
 
-const SEARCH_API_URL = import.meta.env.VITE_SEARCH_API_URL || 'http://localhost:8005/api/v1';
+const SEARCH_API_URL = import.meta.env.VITE_SEARCH_API_URL || 'https://search-service-fzdcrf2fxq-uc.a.run.app/api/v1/search';
 
 const FALLBACK_PRODUCTS: SearchProduct[] = [
   {
@@ -120,22 +120,26 @@ export interface SearchQueryParams {
 }
 
 export async function searchProducts(params: SearchQueryParams = {}): Promise<SearchResponse> {
-  try {
-    const url = new URL(`${SEARCH_API_URL}/search`);
-    if (params.q) url.searchParams.set('q', params.q);
-    if (params.category && params.category !== 'all') url.searchParams.set('category', params.category);
-    if (params.brand) url.searchParams.set('brand', params.brand);
-    if (params.max_height_cm) url.searchParams.set('max_height_cm', params.max_height_cm.toString());
-    if (params.min_price) url.searchParams.set('min_price', params.min_price.toString());
-    if (params.max_price) url.searchParams.set('max_price', params.max_price.toString());
-    if (params.sort) url.searchParams.set('sort', params.sort);
-    if (params.page) url.searchParams.set('page', params.page.toString());
-    if (params.limit) url.searchParams.set('limit', params.limit.toString());
+  if (SEARCH_API_URL) {
+    try {
+      const url = new URL(`${SEARCH_API_URL}/search`);
+      if (params.q) url.searchParams.set('q', params.q);
+      if (params.category && params.category !== 'all') url.searchParams.set('category', params.category);
+      if (params.brand) url.searchParams.set('brand', params.brand);
+      if (params.max_height_cm) url.searchParams.set('max_height_cm', params.max_height_cm.toString());
+      if (params.min_price) url.searchParams.set('min_price', params.min_price.toString());
+      if (params.max_price) url.searchParams.set('max_price', params.max_price.toString());
+      if (params.sort) url.searchParams.set('sort', params.sort);
+      if (params.page) url.searchParams.set('page', params.page.toString());
+      if (params.limit) url.searchParams.set('limit', params.limit.toString());
 
-    const res = await fetch(url.toString(), { signal: AbortSignal.timeout(3000) });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch {
+      const res = await fetch(url.toString(), { signal: AbortSignal.timeout(3000) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      // Fall through to offline fallback
+    }
+  }
     // Offline resilient fallback
     let items = [...FALLBACK_PRODUCTS];
     const q = (params.q || '').toLowerCase().trim();
@@ -207,38 +211,40 @@ export async function searchProducts(params: SearchQueryParams = {}): Promise<Se
         max_height_cm: 52.0,
       },
     };
-  }
 }
 
 export async function fetchSuggestions(q: string): Promise<SuggestionResponse> {
-  try {
-    const res = await fetch(`${SEARCH_API_URL}/search/suggest?q=${encodeURIComponent(q)}`, {
-      signal: AbortSignal.timeout(2000),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch {
-    const cleanQ = (q || '').toLowerCase().trim();
-    if (!cleanQ) return { query: '', suggestions: [], categories: [], products: [] };
-
-    const suggestions: string[] = [];
-    if ('espresso'.startsWith(cleanQ)) suggestions.push('Espresso Machine');
-    if ('breville'.startsWith(cleanQ)) suggestions.push('Breville');
-    if ('blender'.startsWith(cleanQ)) suggestions.push('Blender');
-    if ('vitamix'.startsWith(cleanQ)) suggestions.push('Vitamix');
-
-    const products = FALLBACK_PRODUCTS.filter(
-      (p) =>
-        p.name.toLowerCase().includes(cleanQ) ||
-        p.brand.toLowerCase().includes(cleanQ) ||
-        p.category.toLowerCase().includes(cleanQ)
-    ).slice(0, 3);
-
-    return {
-      query: q,
-      suggestions,
-      categories: [{ id: 'espresso_machine', label: 'Espresso Machines', count: 3 }],
-      products,
-    };
+  if (SEARCH_API_URL) {
+    try {
+      const res = await fetch(`${SEARCH_API_URL}/search/suggest?q=${encodeURIComponent(q)}`, {
+        signal: AbortSignal.timeout(2000),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch {
+      // Fall through
+    }
   }
+  const cleanQ = (q || '').toLowerCase().trim();
+  if (!cleanQ) return { query: '', suggestions: [], categories: [], products: [] };
+
+  const suggestions: string[] = [];
+  if ('espresso'.startsWith(cleanQ)) suggestions.push('Espresso Machine');
+  if ('breville'.startsWith(cleanQ)) suggestions.push('Breville');
+  if ('blender'.startsWith(cleanQ)) suggestions.push('Blender');
+  if ('vitamix'.startsWith(cleanQ)) suggestions.push('Vitamix');
+
+  const products = FALLBACK_PRODUCTS.filter(
+    (p) =>
+      p.name.toLowerCase().includes(cleanQ) ||
+      p.brand.toLowerCase().includes(cleanQ) ||
+      p.category.toLowerCase().includes(cleanQ)
+  ).slice(0, 3);
+
+  return {
+    query: q,
+    suggestions,
+    categories: [{ id: 'espresso_machine', label: 'Espresso Machines', count: 3 }],
+    products,
+  };
 }

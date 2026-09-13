@@ -18,6 +18,6 @@ Provides standalone and embeddable search components including `<SearchBar>`, in
 
 ```bash
 npm install
-npm run dev     # Runs harness on http://localhost:5179
+npm run dev     # Runs harness on port 5179
 npm run build   # Compiles standalone bundle
 ```
